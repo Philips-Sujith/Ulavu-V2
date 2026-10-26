@@ -89,6 +89,14 @@ async def run_api_tests():
         assert isinstance(inquiries, list)
         print(f"Portal /api/inquiries endpoint verified ({len(inquiries)} inquiries).")
 
+        # 5. Options REST API for crops & locations
+        res = await client.get("/api/options")
+        assert res.status_code == 200
+        options_data = res.json()
+        assert len(options_data["crops"]) == 9
+        assert len(options_data["locations"]) == 9
+        print(f"Portal /api/options endpoint verified ({len(options_data['crops'])} crops, {len(options_data['locations'])} locations).")
+
 if __name__ == "__main__":
     asyncio.run(run_api_tests())
     print("\nALL API TESTS PASSED SUCCESSFULLY!")

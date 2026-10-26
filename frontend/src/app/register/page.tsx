@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api, RetailerCreateInput } from '@/lib/api';
@@ -17,18 +17,27 @@ import {
 } from 'lucide-react';
 
 const SEEDED_TOWNS = [
-  { name: 'Madurantakam', lat: 12.5085, lng: 79.8850, district: 'Chengalpattu District' },
-  { name: 'Chengalpattu', lat: 12.6841, lng: 79.9836, district: 'Chengalpattu District' },
-  { name: 'Kanchipuram', lat: 12.8342, lng: 79.7036, district: 'Kanchipuram District' },
-  { name: 'Tirukalukundram', lat: 12.6105, lng: 80.0537, district: 'Chengalpattu District' },
+  { name: 'Madurantakam', tamil: 'மதுராந்தகம்', lat: 12.5085, lng: 79.8850, district: 'Chengalpattu District' },
+  { name: 'Chengalpattu', tamil: 'செங்கல்பட்டு', lat: 12.6841, lng: 79.9836, district: 'Chengalpattu District' },
+  { name: 'Kanchipuram', tamil: 'காஞ்சிபுரம்', lat: 12.8342, lng: 79.7036, district: 'Kanchipuram District' },
+  { name: 'Tirukalukundram', tamil: 'திருக்கழுக்குன்றம்', lat: 12.6105, lng: 80.0537, district: 'Chengalpattu District' },
+  { name: 'Uthiramerur', tamil: 'உத்திரமேரூர்', lat: 12.6152, lng: 79.7570, district: 'Kanchipuram District' },
+  { name: 'Acharapakkam', tamil: 'அச்சரப்பாக்கம்', lat: 12.4419, lng: 79.8174, district: 'Chengalpattu District' },
+  { name: 'Cheyyur', tamil: 'செய்யூர்', lat: 12.3524, lng: 80.0041, district: 'Chengalpattu District' },
+  { name: 'Sriperumbudur', tamil: 'ஸ்ரீபெரும்புதூர்', lat: 12.9675, lng: 79.9427, district: 'Kanchipuram District' },
+  { name: 'Walajabad', tamil: 'வாலாஜாபாத்', lat: 12.7937, lng: 79.8169, district: 'Kanchipuram District' },
 ];
 
 const AVAILABLE_CROPS = [
-  { id: 'tomato', name: 'Tomato', tamil: 'தக்காளி', emoji: '🍅' },
   { id: 'onion', name: 'Onion', tamil: 'வெங்காயம்', emoji: '🧅' },
+  { id: 'tomato', name: 'Tomato', tamil: 'தக்காளி', emoji: '🍅' },
+  { id: 'potato', name: 'Potato', tamil: 'உருளைக்கிழங்கு', emoji: '🥔' },
   { id: 'brinjal', name: 'Brinjal', tamil: 'கத்தரிக்காய்', emoji: '🍆' },
-  { id: 'chilli', name: 'Chilli', tamil: 'மிளகாய்', emoji: '🌶️' },
-  { id: 'okra', name: 'Okra', tamil: 'வெண்டைக்காய்', emoji: '🥬' },
+  { id: 'carrot', name: 'Carrot', tamil: 'கேரட்', emoji: '🥕' },
+  { id: 'cabbage', name: 'Cabbage', tamil: 'முட்டைக்கோஸ்', emoji: '🥬' },
+  { id: 'cauliflower', name: 'Cauliflower', tamil: 'காலிஃப்ளவர்', emoji: '🥦' },
+  { id: 'okra', name: 'Okra', tamil: 'வெண்டைக்காய்', emoji: '🥒' },
+  { id: 'chilli', name: 'Green Chilli', tamil: 'பச்சை மிளகாய்', emoji: '🌶️' },
 ];
 
 export default function RegisterPage() {
@@ -229,7 +238,7 @@ export default function RegisterPage() {
               >
                 {SEEDED_TOWNS.map((town) => (
                   <option key={town.name} value={town.name}>
-                    {town.name} ({town.district})
+                    {town.name} — {town.tamil} ({town.district})
                   </option>
                 ))}
               </select>

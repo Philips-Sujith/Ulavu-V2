@@ -44,7 +44,11 @@ export interface SystemStats {
   total_retailers: number;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+export const DEFAULT_API_BASE_URL = 'https://ulavu-v2-backend.onrender.com';
+
+const API_BASE = (
+  process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_BASE_URL
+).replace(/\/+$/, '');
 
 async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
   const fullUrl = `${API_BASE}${url}`;
@@ -101,4 +105,6 @@ export const api = {
     }),
 
   getAllInquiries: (): Promise<InquiryLog[]> => fetchJson<InquiryLog[]>('/api/inquiries'),
+  getOptions: (): Promise<{ crops: Array<{ id: string; name: string; tamil: string }>; locations: Array<{ name: string; tamil: string; lat: number; lng: number }> }> =>
+    fetchJson('/api/options'),
 };

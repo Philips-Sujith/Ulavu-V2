@@ -308,3 +308,27 @@ async def get_all_inquiries(
         )
         for inq in inquiries
     ]
+
+
+@router.get("/options")
+async def get_crop_and_location_options():
+    """
+    Returns supported crops and location presets consistent with voicebot and matching engine.
+    """
+    from app.exotel_voicebot import CROP_OPTIONS, LOCATION_OPTIONS
+    from app.matching import TOWN_COORDINATES
+
+    crops = [
+        {"id": info["slug"], "name": info["slug"].replace("_", " ").title(), "tamil": info["tamil"]}
+        for info in CROP_OPTIONS.values()
+    ]
+    locations = [
+        {
+            "name": info["name"],
+            "tamil": info["tamil"],
+            "lat": TOWN_COORDINATES.get(info["name"].lower(), (0.0, 0.0))[0],
+            "lng": TOWN_COORDINATES.get(info["name"].lower(), (0.0, 0.0))[1],
+        }
+        for info in LOCATION_OPTIONS.values()
+    ]
+    return {"crops": crops, "locations": locations}

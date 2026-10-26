@@ -10,11 +10,15 @@ interface LeadsListProps {
 }
 
 const CROP_EMOJIS: Record<string, string> = {
-  tomato: '🍅',
   onion: '🧅',
+  tomato: '🍅',
+  potato: '🥔',
   brinjal: '🍆',
+  carrot: '🥕',
+  cabbage: '🥬',
+  cauliflower: '🥦',
+  okra: '🥒',
   chilli: '🌶️',
-  okra: '🥬',
 };
 
 export default function LeadsList({ retailerId, retailerName }: LeadsListProps) {

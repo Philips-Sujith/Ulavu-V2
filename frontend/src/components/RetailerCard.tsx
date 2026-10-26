@@ -11,11 +11,15 @@ interface RetailerCardProps {
 }
 
 const CROP_EMOJIS: Record<string, string> = {
-  tomato: '🍅 Tomato',
   onion: '🧅 Onion',
+  tomato: '🍅 Tomato',
+  potato: '🥔 Potato',
   brinjal: '🍆 Brinjal',
-  chilli: '🌶️ Chilli',
-  okra: '🥬 Okra',
+  carrot: '🥕 Carrot',
+  cabbage: '🥬 Cabbage',
+  cauliflower: '🥦 Cauliflower',
+  okra: '🥒 Okra',
+  chilli: '🌶️ Green Chilli',
 };
 
 export default function RetailerCard({ retailer, onStatusToggled }: RetailerCardProps) {
