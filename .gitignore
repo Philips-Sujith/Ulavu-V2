@@ -1,11 +1,15 @@
+# Next.js generated files
+frontend/.next/
+frontend/node_modules/
+frontend/out/
+
+# Python
+backend/venv/
+backend/.venv/
+__pycache__/
+*.py[cod]
+
+# Secrets
 .env
 .env.*
 !.env.example
-venv/
-.venv/
-__pycache__/
-*.py[cod]
-.pytest_cache/
-node_modules/
-dist/
-build/
