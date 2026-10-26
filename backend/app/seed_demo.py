@@ -20,12 +20,13 @@ ALL_9_CROPS = [
     "chilli",
 ]
 
-# 5 Predefined Demo Retailers with 9 Location Mappings (Clearly designated demo lines)
+# Predefined Demo Retailers with realistic, non-repetitive 10-digit Indian numbers
 DEMO_RETAILERS_DATA = [
+    # Batch 1 (Realistic numbers replacing legacy 9800000001-9800000005)
     {
         "business_name": "முருகன் காய்கறி விற்பனை",
         "owner_name": "டெமோ விற்பனையாளர் (Demo Account 1)",
-        "phone_number": "9865741275",
+        "phone_number": "9828381023",
         "location_name": "மதுராந்தகம்",
         "lat": 12.5085,
         "lng": 79.8850,
@@ -34,7 +35,7 @@ DEMO_RETAILERS_DATA = [
     {
         "business_name": "செல்வம் காய்கறி மையம்",
         "owner_name": "டெமோ விற்பனையாளர் (Demo Account 2)",
-        "phone_number": "9644157852",
+        "phone_number": "9361748205",
         "location_name": "காஞ்சிபுரம்",
         "lat": 12.8342,
         "lng": 79.7036,
@@ -43,7 +44,7 @@ DEMO_RETAILERS_DATA = [
     {
         "business_name": "ராஜா விவசாய விற்பனை",
         "owner_name": "டெமோ விற்பனையாளர் (Demo Account 3)",
-        "phone_number": "9785632147",
+        "phone_number": "9442819374",
         "location_name": "உத்திரமேரூர்",
         "lat": 12.6152,
         "lng": 79.7570,
@@ -52,7 +53,7 @@ DEMO_RETAILERS_DATA = [
     {
         "business_name": "குமார் காய்கறி வர்த்தகம்",
         "owner_name": "டெமோ விற்பனையாளர் (Demo Account 4)",
-        "phone_number": "9367821450",
+        "phone_number": "9894125638",
         "location_name": "செய்யூர்",
         "lat": 12.3524,
         "lng": 80.0041,
@@ -61,42 +62,118 @@ DEMO_RETAILERS_DATA = [
     {
         "business_name": "அருண் வேளாண் விற்பனை",
         "owner_name": "டெமோ விற்பனையாளர் (Demo Account 5)",
-        "phone_number": "9874516328",
+        "phone_number": "9789341206",
         "location_name": "வாலாஜாபாத்",
         "lat": 12.7937,
         "lng": 79.8169,
         "assigned_locations": [9],  # Walajabad
     },
+    # Batch 2 (Voicebot fallback demo accounts)
+    {
+        "business_name": "முருகன் காய்கறி விற்பனை",
+        "owner_name": "டெமோ விற்பனையாளர் (Demo Account 1)",
+        "phone_number": "9865741275",
+        "location_name": "மதுராந்தகம்",
+        "lat": 12.5085,
+        "lng": 79.8850,
+        "assigned_locations": [1, 2],
+    },
+    {
+        "business_name": "செல்வம் காய்கறி மையம்",
+        "owner_name": "டெமோ விற்பனையாளர் (Demo Account 2)",
+        "phone_number": "9644157852",
+        "location_name": "காஞ்சிபுரம்",
+        "lat": 12.8342,
+        "lng": 79.7036,
+        "assigned_locations": [3, 4],
+    },
+    {
+        "business_name": "ராஜா விவசாய விற்பனை",
+        "owner_name": "டெமோ விற்பனையாளர் (Demo Account 3)",
+        "phone_number": "9785632147",
+        "location_name": "உத்திரமேரூர்",
+        "lat": 12.6152,
+        "lng": 79.7570,
+        "assigned_locations": [5, 6],
+    },
+    {
+        "business_name": "குமார் காய்கறி வர்த்தகம்",
+        "owner_name": "டெமோ விற்பனையாளர் (Demo Account 4)",
+        "phone_number": "9367821450",
+        "location_name": "செய்யூர்",
+        "lat": 12.3524,
+        "lng": 80.0041,
+        "assigned_locations": [7, 8],
+    },
+    {
+        "business_name": "அருண் வேளாண் விற்பனை",
+        "owner_name": "டெமோ விற்பனையாளர் (Demo Account 5)",
+        "phone_number": "9874516328",
+        "location_name": "வாலாஜாபாத்",
+        "lat": 12.7937,
+        "lng": 79.8169,
+        "assigned_locations": [9],
+    },
 ]
+
+# Mapping to replace repetitive placeholder numbers with unique, realistic 10-digit Indian mobile numbers
+LEGACY_PLACEHOLDER_REPLACEMENTS = {
+    "9800000001": "9828381023",
+    "9800000002": "9361748205",
+    "9800000003": "9442819374",
+    "9800000004": "9894125638",
+    "9800000005": "9789341206",
+}
 
 async def seed_demo_retailers():
     """
-    Idempotent seeder: creates or updates the 5 predefined demo retailers.
-    Supports all 9 crops, assigns coordinates, and keeps them active.
+    Idempotent seeder: creates or updates the predefined demo retailers.
+    Replaces repetitive placeholder numbers with realistic 10-digit numbers,
+    supports all 9 crops, assigns coordinates, and keeps them active.
     Safe to run repeatedly without creating duplicates.
     """
     logger.info("Initializing database schema...")
     await init_db()
 
     async with AsyncSessionLocal() as session:
-        logger.info("Seeding/updating 5 demo retailers...")
+        logger.info("Checking and updating demo retailers...")
 
+        # 1. Update any legacy repetitive placeholder numbers in existing demo accounts
+        all_retailers_res = await session.execute(select(Retailer))
+        existing_retailers = all_retailers_res.scalars().all()
+        updated_placeholders = 0
+
+        for r in existing_retailers:
+            clean_phone = r.phone_number.replace("+91", "").strip() if r.phone_number else ""
+            if r.phone_number in LEGACY_PLACEHOLDER_REPLACEMENTS:
+                new_phone = LEGACY_PLACEHOLDER_REPLACEMENTS[r.phone_number]
+                logger.info(f"Replacing placeholder phone '{r.phone_number}' -> '{new_phone}' for '{r.business_name}'")
+                r.phone_number = new_phone
+                updated_placeholders += 1
+            elif clean_phone in LEGACY_PLACEHOLDER_REPLACEMENTS:
+                new_phone = LEGACY_PLACEHOLDER_REPLACEMENTS[clean_phone]
+                logger.info(f"Replacing placeholder phone '{r.phone_number}' -> '{new_phone}' for '{r.business_name}'")
+                r.phone_number = new_phone
+                updated_placeholders += 1
+
+        if updated_placeholders > 0:
+            await session.commit()
+            logger.info(f"Successfully replaced {updated_placeholders} repetitive placeholder numbers with realistic mobile numbers.")
+
+        # 2. Seed / update demo retailers by phone_number (unique key)
         for data in DEMO_RETAILERS_DATA:
             phone = data["phone_number"]
             result = await session.execute(
-                select(Retailer).where(
-                    (Retailer.phone_number == phone) | (Retailer.business_name == data["business_name"])
-                )
+                select(Retailer).where(Retailer.phone_number == phone)
             )
             retailer = result.scalars().first()
 
             wkt_point = f"SRID=4326;POINT({data['lng']} {data['lat']})"
 
             if retailer:
-                # Update existing retailer to ensure active, updated phone and all 9 crops
+                # Update existing retailer to ensure active, valid business/owner name and all 9 crops
                 retailer.business_name = data["business_name"]
                 retailer.owner_name = data["owner_name"]
-                retailer.phone_number = phone
                 retailer.location_name = data["location_name"]
                 retailer.coordinates = wkt_point
                 retailer.accepted_crops = ALL_9_CROPS
@@ -117,7 +194,7 @@ async def seed_demo_retailers():
                 logger.info(f"Created demo retailer: {data['business_name']} ({phone})")
 
         await session.commit()
-        logger.info("Successfully seeded/verified all 5 demo retailers with all 9 crops!")
+        logger.info("Successfully seeded/verified all demo retailers with all 9 crops and unique realistic numbers!")
 
 if __name__ == "__main__":
     asyncio.run(seed_demo_retailers())

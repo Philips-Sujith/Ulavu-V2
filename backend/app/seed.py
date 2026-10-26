@@ -25,7 +25,7 @@ SAMPLE_RETAILERS = [
     {
         "business_name": "Cauvery Green Mandi",
         "owner_name": "S. Arumugam",
-        "phone_number": "+919443123456",
+        "phone_number": "+919442183952",
         "location_name": "Madurantakam",
         "lat": 12.5150,
         "lng": 79.8920,
@@ -35,7 +35,7 @@ SAMPLE_RETAILERS = [
     {
         "business_name": "Chengalpattu Farmers Hub",
         "owner_name": "P. Selvam",
-        "phone_number": "+919842109876",
+        "phone_number": "+919840371946",
         "location_name": "Chengalpattu",
         "lat": 12.6841,
         "lng": 79.9836,
@@ -45,7 +45,7 @@ SAMPLE_RETAILERS = [
     {
         "business_name": "Vetri Agro Wholesalers",
         "owner_name": "V. Thangavel",
-        "phone_number": "+919789012345",
+        "phone_number": "+919788241590",
         "location_name": "Chengalpattu",
         "lat": 12.6900,
         "lng": 79.9750,
@@ -55,7 +55,7 @@ SAMPLE_RETAILERS = [
     {
         "business_name": "Kanchipuram Uzhavar Vanigam",
         "owner_name": "M. Ramanathan",
-        "phone_number": "+919884567890",
+        "phone_number": "+919884219573",
         "location_name": "Kanchipuram",
         "lat": 12.8342,
         "lng": 79.7036,
@@ -65,7 +65,7 @@ SAMPLE_RETAILERS = [
     {
         "business_name": "Tirukalukundram Bio Mandi",
         "owner_name": "R. Natarajan",
-        "phone_number": "+919940123789",
+        "phone_number": "+919940825317",
         "location_name": "Tirukalukundram",
         "lat": 12.6105,
         "lng": 80.0537,
@@ -86,13 +86,23 @@ async def seed_database():
         existing_retailers = result.scalars().all()
 
         if existing_retailers:
-            logger.info(f"Database already contains {len(existing_retailers)} retailers.")
-            # Check if primary test retailer needs phone update
+            logger.info(f"Database already contains {len(existing_retailers)} retailers. Syncing sample retailer phones...")
+            updated_count = 0
+            sample_map = {r["business_name"]: r["phone_number"] for r in SAMPLE_RETAILERS}
             for r in existing_retailers:
                 if r.business_name == "Sri Murugan Agro Traders" and settings.TEST_RETAILER_PHONE:
-                    r.phone_number = settings.TEST_RETAILER_PHONE
-                    await session.commit()
-                    logger.info(f"Updated Sri Murugan Agro Traders phone to {settings.TEST_RETAILER_PHONE}")
+                    if r.phone_number != settings.TEST_RETAILER_PHONE:
+                        r.phone_number = settings.TEST_RETAILER_PHONE
+                        updated_count += 1
+                elif r.business_name in sample_map and r.business_name != "Sri Murugan Agro Traders":
+                    target_phone = sample_map[r.business_name]
+                    if r.phone_number != target_phone:
+                        r.phone_number = target_phone
+                        updated_count += 1
+                        logger.info(f"Updated {r.business_name} phone to realistic number: {target_phone}")
+            if updated_count > 0:
+                await session.commit()
+                logger.info(f"Committed {updated_count} sample retailer phone updates.")
             return
 
         logger.info("Seeding 6 sample retailers across Tamil Nadu...")
@@ -122,7 +132,7 @@ async def seed_database():
 
         sample_leads = [
             InquiryLog(
-                farmer_phone="+919712345678",
+                farmer_phone="+919710482615",
                 crop_inquired="tomato",
                 location_spoken="Madurantakam",
                 matched_retailer_id=sri_murugan.id,
@@ -131,7 +141,7 @@ async def seed_database():
                 call_sid="CA_demo_seed_001"
             ),
             InquiryLog(
-                farmer_phone="+919823456789",
+                farmer_phone="+919820593741",
                 crop_inquired="onion",
                 location_spoken="Maduranthagam",
                 matched_retailer_id=sri_murugan.id,
@@ -141,7 +151,7 @@ async def seed_database():
                 call_sid="CA_demo_seed_002"
             ),
             InquiryLog(
-                farmer_phone="+919934567890",
+                farmer_phone="+919930847125",
                 crop_inquired="okra",
                 location_spoken="Chengalpattu",
                 matched_retailer_id=chengalpattu_hub.id,
